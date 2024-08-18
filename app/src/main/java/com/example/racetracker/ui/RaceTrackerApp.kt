@@ -36,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,13 +61,28 @@ fun RaceTrackerApp() {
      * Coroutines that implementation detail is stripped out.
      */
     val playerOne = remember {
-        RaceParticipant(name = "Player 1", progressIncrement = 1)
+        RaceParticipant(name = "Player 1", progressIncrement = 20)
     }
     val playerTwo = remember {
-        RaceParticipant(name = "Player 2", progressIncrement = 2)
+        RaceParticipant(name = "Player 2", progressIncrement = 20)
     }
     var raceInProgress by remember { mutableStateOf(false) }
 
+    // 如果是在 race 状态,就开启一个协程去执行挂起方法 run,持续累加进度
+    if (raceInProgress) {
+        // 关于协程: 协程是为了简化线程提出的概念, 因为每个线程都会在内存上开启一个专属的栈空间,线程的创建、切换和恢复的开销较大，且线程间的资源共享需要复杂的同步机制。在处理一些简单的异步任务时，使用线程可能会浪费资源。因此，在线程中引入协程作为一种轻量级的用户态线程，可以更高效地处理异步任务。协程通过挂起和恢复的机制，实现了在同一个线程内的高效任务切换，从而提高了程序的执行效率。
+        // 关于LaunchedEffect:
+        // LaunchedEffect 是 Jetpack Compose 中用于启动协程的一个 API，它在 Compose 中管理副作用（side effects）,使你能够在 UI 组件的生命周期内运行异步任务。
+        // 1. LaunchedEffect 遵从 compose 控件的生命周期,当控件销毁LaunchedEffect协程也会取消
+        // 2. LaunchedEffect传入的参数也称作为 key, LaunchedEffect会因为 key 的引用对象改变了而取消改变前的协程, 重新开始任务 -> 画面重组 -> key 的值获得了一个全新的实例 -> 开启一个全新的协程执行任务
+        // 3. 当LaunchedEffect添加到 compose 组件中会创建一个协程来处理内部添加的挂起函数任务,挂起函数任务在其中的会按照顺序执行,即使是异步操作也会按顺序‘等待’前一个任务完成
+        LaunchedEffect(playerOne, playerTwo) {
+            playerOne.run()
+            playerTwo.run()
+            // 当上述任务处理完,将状态改为非race, 协程取消
+            raceInProgress = false
+        }
+    }
     RaceTrackerScreen(
         playerOne = playerOne,
         playerTwo = playerTwo,
