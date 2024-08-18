@@ -10,7 +10,17 @@ Pre-requisites
 * Experience with building apps using Jetpack Compose.
 * How to create and run a project in Android Studio.
 * Familiar with Kotlin coroutines
+* 了解 Kotlin 语言的基础知识，包括函数和 lambda
+* 能够在 Jetpack Compose 中构建布局
+* 能够使用 Kotlin 编写单元测试（请参考为 ViewModel 编写单元测试 Codelab）
+* 了解线程和并发的工作原理
+* 具备协程和协程作用域方面的基础知识
 
+Will Learn
+--------------
+* 如何在 Android 应用生命周期中使用协程。
+* 结构化并发的原则。
+* 如何编写单元测试来对协程进行测试。
 
 Getting Started
 ---------------
